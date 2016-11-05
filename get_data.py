@@ -22,7 +22,7 @@ w = [0] + orders_sheet.col_values(2)[1:]
 C = Vehicle_sheet.cell(0, 1)
 
 # max driving time
-W = Vehicle_sheet.cell(1, 1)
+# W = Vehicle_sheet.cell(1, 1)
 
 # shift length
 shift_length = 14400
