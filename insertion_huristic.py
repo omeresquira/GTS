@@ -1,10 +1,9 @@
 import numpy
 import random
-import xlrd
 import get_data as g
+from get_data import *
 import removal_huristic
 import copy
-
 
 # a solution includes 2 parts: sol, schedule
 # sol:
@@ -14,19 +13,25 @@ import copy
 # schedule:
 # schedule is a dict for each order, the value is the schedule chosen in sol
 
-sol = [[[(0,0,0), (1,777.0,6.48), (6,1564.0,0)],[(0,0,0),(6,0,0)]], [[(0,0,0), (2,776.0,6.48), (6,1562.0,0)],[(0,0,0),(6,0,0)]],
-     [[(0,0,0), (3,772.0,6.48), (6,1554.0,0)],[(0,0,0),(6,0,0)]],[[(0,0,0), (4,764.0,12.96), (5,792.0,19.44), (6,1576.0,0)],[(0,0,0),(6,0,0)]]]
-schedule = {1:0, 2:1, 3:2, 4:3, 5:3}
 
-random.seed(0)
-
-k = 5
-q = 2
-
-removed_sol, removed_schedule, chosen_orders = removal_huristic.shaw_removal_huristic(sol, schedule, q, k)
+# orig_sol = [[[Stop(0,0,0), Stop(1,777.0,6.48), Stop(6,1564.0,0)]], [[Stop(0,0,0), Stop(2,776.0,6.48), Stop(6,1562.0,0)]],
+#      [[Stop(0,0,0), Stop(3,772.0,6.48), Stop(6,1554.0,0)]],[[Stop(0,0,0), Stop(4,764.0,12.96), Stop(5,792.0,19.44),
+#                                                              Stop(6,1576.0,0)]]]
+# schedule = {1:0, 2:1, 3:2, 4:3, 5:3}
 
 
-def Basic_gready(sol, schedule, chosen_orders):
+def find_initial_sol(orders, sol):
+    orders_copy = copy.deepcopy(orders)
+    while len(orders_copy)>0:
+        for i in orders_copy:
+            print i
+            order_data = minimum_insertion_cost(i, sol)
+            sol = insert_order(sol, order_data)
+            orders_copy.remove(i)
+    return sol
+
+
+def basic_greedy(sol, chosen_orders):
     while len(chosen_orders)>0:
         minimal_cost_for_order = numpy.inf
         for i in chosen_orders:
@@ -34,12 +39,23 @@ def Basic_gready(sol, schedule, chosen_orders):
             if order_data[0] < minimal_cost_for_order:
                 chosen_order = i
                 chosen_data = order_data
-        new_sol = insert_order(sol, chosen_data)
-        sol = new_sol
-        remove.chosen_orders(chosen_order)
-        return sol
+        sol = insert_order(sol, chosen_data)
+        chosen_orders.remove(chosen_order)
+    return sol
 
-def minimum_insertion_cost(i, solution):
+
+def insert_order(sol, order_data):
+    for route in order_data[2]:
+        day = route[0]
+        vehicle = route[1]
+        if len(sol[day-1])< vehicle + 1:
+            sol[day-1].append(route[2])
+        else:
+            sol[day-1][vehicle] = route[2]
+    return sol
+
+def minimum_insertion_cost(i, sol):
+    solution = copy.deepcopy(sol)
     # take all possible schedules for order i
     possible_schedule = g.Pr[g.r[i]]
     min_sched_cost = numpy.inf
@@ -49,36 +65,40 @@ def minimum_insertion_cost(i, solution):
         routes_for_days = []
         for day in sched:
             # initialize the cost per vehicle for each day in a specific schedule
+            solution[day-1].append([Stop(0,0,0), Stop(6,0,0)])
             minimal_vehicle_cost = numpy.inf
-            for vehicle in sol[day-1]:
+            for vehicle in solution[day-1]:
                 # save vehicle index
-                vehicle_number = sol[day-1].index(vehicle)
+                vehicle_number = solution[day-1].index(vehicle)
                 # check if capacity constraint is broken
-                if vehicle[-2][2] + g.w[i] > g.C:
+                if vehicle[-2].load + g.w[i] > g.C:
                     continue
-                orig_total_time = vehicle[-1][1]
+                orig_total_time = vehicle[-1].arrival_time
                 minimal_route_cost = numpy.inf
 
                 # initiate cost for each optional slots between the depot and landfill
                 for j in range(len(vehicle)-1):
                     new_route = copy.deepcopy(vehicle[:j+1])
-                    new_route.append((i, vehicle[j][1]+g.t[vehicle[j][0],i]+g.s[j], vehicle[j][2]+g.w[i]))
+                    new_route.append(Stop(i, vehicle[j].arrival_time+g.t[vehicle[j].order_number,i]+g.s[j], vehicle[j].load+g.w[i]))
 
                     for order in range(j+1,len(vehicle)-1):
                         # add all orders after j to the new route
-                        new_route.append((vehicle[order][0], new_route[order-1][-2] + \
-                        g.t[new_route[order-1][0], vehicle[order][0]] + g.s[new_route[order-1][0]], new_route[order-1][-1] \
-                        + g.w[vehicle[order][0]]))
-                    new_route.append((6, new_route[-1][1] + g.t[new_route[-1][0], 0]))
+                        new_route.append(Stop(vehicle[order].order_number, new_route[order-1].arrival_time + \
+                        g.t[new_route[order-1].order_number, vehicle[order].order_number] + g.s[new_route[order-1].order_number],
+                                              new_route[order-1].load + g.w[vehicle[order].order_number]))
+
+                    new_route.append(Stop(6, new_route[-1].arrival_time + g.t[new_route[-1].order_number, 0] +
+                                          g.s[new_route[-1].order_number],0))
                     #check shift length constraint
-                    if new_route[-1][1] > g.shift_length:
+                    if new_route[-1].arrival_time > g.shift_length:
                         continue
-                    time_saved = orig_total_time - new_route[-1][1]
-                    if vehicle[j+1][0] != 6:
-                        dist_saved = g.d[vehicle[j][0], i] + g.d[i, vehicle[j+1][0]] - g.d[vehicle[j][0], vehicle[j+1][0]]
+                    time_added = new_route[-1].arrival_time - orig_total_time
+                    if vehicle[j+1].order_number != 6:
+                        dist_added = g.d[vehicle[j].order_number, i] + g.d[i, vehicle[j+1].order_number]\
+                                     - g.d[vehicle[j].order_number, vehicle[j+1].order_number]
                     else:
-                        dist_saved = g.d[vehicle[j][0], i] + g.d[i, 0] - g.d[vehicle[j][0], 0]
-                    new_route_cost = 0.2*time_saved + 0.3*dist_saved
+                        dist_added = g.d[vehicle[j].order_number, i] + g.d[i, 0] - g.d[vehicle[j].order_number, 0]
+                    new_route_cost = 0.2*time_added + 0.3*dist_added
                     if new_route_cost < minimal_route_cost:
                         minimal_route = new_route
                         minimal_route_cost = new_route_cost
@@ -89,22 +109,20 @@ def minimum_insertion_cost(i, solution):
                     minimal_vehicle_cost = minimal_route_cost
                     minimal_vehicle_route = minimal_route
 
-            routes_for_days.append((day, minimal_vehicle, minimal_vehicle_cost, minimal_vehicle_route))
+            routes_for_days.append((day, minimal_vehicle, minimal_vehicle_route))
             all_days_costs = all_days_costs + minimal_vehicle_cost
         if all_days_costs < min_sched_cost:
             min_sched = [all_days_costs, sched, routes_for_days]
 
     return min_sched
 
-def insert_order(sol, order_data):
-    for route in order_data[2]:
-        day = route[0]
-        vehicle = route[1]
-        sol[day][vehicle] = route[3]
-    return sol
 
 
-
-order_data = minimum_insertion_cost(1, sol)
-print insert_order(sol, order_data)
-#Basic_gready(removed_sol, removed_schedule, chosen_orders)
+random.seed(0)
+k = 5
+q = 1
+all_orders = list(g.N1)
+empty_sol = [[] for i in range(g.T)]
+initial_sol = find_initial_sol(all_orders, empty_sol)
+removed_sol, chosen_orders1 = removal_huristic.shaw_removal_huristic(initial_sol, q, k)
+print basic_greedy(removed_sol, chosen_orders1)

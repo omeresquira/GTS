@@ -1,6 +1,7 @@
 import xlrd
 import numpy as np
 
+
 xl_data = xlrd.open_workbook('10_Test_Instance.xlsx')
 orders_sheet = xl_data.sheet_by_name('Orders')
 Vehicle_sheet = xl_data.sheet_by_name('Vehicle')
@@ -22,7 +23,7 @@ w = [0] + orders_sheet.col_values(2)[1:]
 C = Vehicle_sheet.cell(0, 1)
 
 # max driving time
-# W = Vehicle_sheet.cell(1, 1)
+W = Vehicle_sheet.cell(1, 1)
 
 # shift length
 shift_length = 14400
@@ -109,6 +110,19 @@ def get_t():
     return t
 
 
+class Stop(object):
+    def __init__(self, order_number, arrival_time, load):
+        self.order_number = order_number
+        self.arrival_time = arrival_time
+        self.load = load
+
+    def __str__(self):
+        return self.order_number
+
+    def __repr__(self):
+        return str(self.order_number)
+
+
 create_orders_dict()
 get_d()
 get_t()
@@ -130,5 +144,5 @@ N = set(N)
 # print 'r:', r
 # print 't:', t
 # print 'd:', d
-print 'Pr:', Pr
+# print 'Pr:', Pr
 
