@@ -109,6 +109,19 @@ def get_t():
         t[N[orders_to_num[origins[i]]], N[orders_to_num[destinations[i]]]] = duration[i]
     return t
 
+def print_sol(sol):
+    total_time = 0
+    total_dist = 0
+    # print "planing_horizon:", len(sol)
+    for day in range(len(sol)):
+
+        # print "number of vehicles in day", day, ":",  len(sol[day])
+        for vehicle in sol[day]:
+            total_time += vehicle[-1].arrival_time
+            total_dist += vehicle[-2].load
+            # print "total time:", vehicle[-1].arrival_time, "load:", vehicle[-2].load, "route:", vehicle[1:-1]
+    return 0.2*total_time + 0.3*total_dist
+
 
 class Stop(object):
     def __init__(self, order_number, arrival_time, load):

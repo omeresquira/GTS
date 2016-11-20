@@ -19,12 +19,23 @@ import copy
 #                                                              Stop(6,1576.0,0)]]]
 # schedule = {1:0, 2:1, 3:2, 4:3, 5:3}
 
+#n = number of times runing
+def find_best_sol(q, k, n):
+    all_orders = list(g.N1)
+    empty_sol = [[] for k in range(int(g.T))]
+    sol = find_initial_sol(all_orders, empty_sol)
+    result = {"target function":[]}
+    for i in range(n):
+        removed_sol, chosen_orders = removal_huristic.shaw_removal_huristic(sol, q, k)
+        sol = basic_greedy(removed_sol, chosen_orders)
+        result["target function"].append(print_sol(sol))
+    print result
+    return result
 
 def find_initial_sol(orders, sol):
     orders_copy = copy.deepcopy(orders)
     while len(orders_copy)>0:
         for i in orders_copy:
-            print i
             order_data = minimum_insertion_cost(i, sol)
             sol = insert_order(sol, order_data)
             orders_copy.remove(i)
@@ -79,7 +90,7 @@ def minimum_insertion_cost(i, sol):
                 # initiate cost for each optional slots between the depot and landfill
                 for j in range(len(vehicle)-1):
                     new_route = copy.deepcopy(vehicle[:j+1])
-                    new_route.append(Stop(i, vehicle[j].arrival_time+g.t[vehicle[j].order_number,i]+g.s[j], vehicle[j].load+g.w[i]))
+                    new_route.append(Stop(i, vehicle[j].arrival_time+g.t[vehicle[j].order_number,i]+g.s[vehicle[j].order_number], vehicle[j].load+g.w[i]))
 
                     for order in range(j+1,len(vehicle)-1):
                         # add all orders after j to the new route
@@ -113,16 +124,12 @@ def minimum_insertion_cost(i, sol):
             all_days_costs = all_days_costs + minimal_vehicle_cost
         if all_days_costs < min_sched_cost:
             min_sched = [all_days_costs, sched, routes_for_days]
-
     return min_sched
 
 
 
 random.seed(0)
 k = 5
-q = 1
-all_orders = list(g.N1)
-empty_sol = [[] for i in range(g.T)]
-initial_sol = find_initial_sol(all_orders, empty_sol)
-removed_sol, chosen_orders1 = removal_huristic.shaw_removal_huristic(initial_sol, q, k)
-print basic_greedy(removed_sol, chosen_orders1)
+q = 4
+n=10
+find_best_sol(q, k, n)
