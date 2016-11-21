@@ -1,5 +1,4 @@
 import numpy
-import random
 import get_data as g
 from get_data import *
 import removal_huristic
@@ -20,26 +19,7 @@ import copy
 # schedule = {1:0, 2:1, 3:2, 4:3, 5:3}
 
 #n = number of times runing
-def find_best_sol(q, k, n):
-    all_orders = list(g.N1)
-    empty_sol = [[] for k in range(int(g.T))]
-    sol = find_initial_sol(all_orders, empty_sol)
-    result = {"target function":[]}
-    for i in range(n):
-        removed_sol, chosen_orders = removal_huristic.shaw_removal_huristic(sol, q, k)
-        sol = basic_greedy(removed_sol, chosen_orders)
-        result["target function"].append(print_sol(sol))
-    print result
-    return result
 
-def find_initial_sol(orders, sol):
-    orders_copy = copy.deepcopy(orders)
-    while len(orders_copy)>0:
-        for i in orders_copy:
-            order_data = minimum_insertion_cost(i, sol)
-            sol = insert_order(sol, order_data)
-            orders_copy.remove(i)
-    return sol
 
 
 def basic_greedy(sol, chosen_orders):
@@ -98,8 +78,7 @@ def minimum_insertion_cost(i, sol):
                         g.t[new_route[order-1].order_number, vehicle[order].order_number] + g.s[new_route[order-1].order_number],
                                               new_route[order-1].load + g.w[vehicle[order].order_number]))
 
-                    new_route.append(Stop(6, new_route[-1].arrival_time + g.t[new_route[-1].order_number, 0] +
-                                          g.s[new_route[-1].order_number],0))
+                    new_route.append(Stop(6, new_route[-1].arrival_time + g.t[new_route[-1].order_number, 0] + g.s[new_route[-1].order_number],0))
                     #check shift length constraint
                     if new_route[-1].arrival_time > g.shift_length:
                         continue
@@ -128,8 +107,3 @@ def minimum_insertion_cost(i, sol):
 
 
 
-random.seed(0)
-k = 5
-q = 4
-n=10
-find_best_sol(q, k, n)

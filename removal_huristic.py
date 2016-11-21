@@ -52,12 +52,12 @@ def shaw_removal_huristic(sol , q, k):
     # remove the orders from sol
     for day in range(len(sol)):
         for vehicle in range(len(sol[day])):
+
             removed = False
-            for i in sol[day][vehicle]:
-                for j in chosen_orders:
-                    if i.order_number == j:
-                        sol[day][vehicle].remove(i)
-                        removed = True
+            for i in range(len(sol[day][vehicle])-1,-1,-1):
+                if sol[day][vehicle][i].order_number in chosen_orders:
+                    sol[day][vehicle].remove(sol[day][vehicle][i])
+                    removed = True
 
             if removed == True:
                 for i in range(1, len(sol[day][vehicle])):
@@ -87,5 +87,4 @@ def shaw_removal_huristic(sol , q, k):
         for vehicle in range(len(sol[day])-1,-1,-1):
             if len(sol[day][vehicle]) == 0:
                 sol[day].pop(vehicle)
-
     return sol, chosen_orders

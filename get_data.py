@@ -120,6 +120,7 @@ def print_sol(sol):
             total_time += vehicle[-1].arrival_time
             total_dist += vehicle[-2].load
             # print "total time:", vehicle[-1].arrival_time, "load:", vehicle[-2].load, "route:", vehicle[1:-1]
+    print sol
     return 0.2*total_time + 0.3*total_dist
 
 
