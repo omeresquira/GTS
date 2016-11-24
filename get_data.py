@@ -2,7 +2,7 @@ import xlrd
 import numpy as np
 
 
-xl_data = xlrd.open_workbook('10_Test_Instance.xlsx')
+xl_data = xlrd.open_workbook('50_Test_Instance.xlsx')
 orders_sheet = xl_data.sheet_by_name('Orders')
 Vehicle_sheet = xl_data.sheet_by_name('Vehicle')
 distance_sheet = xl_data.sheet_by_name('Distance Matrix')
@@ -112,14 +112,14 @@ def get_t():
 def print_sol(sol):
     total_time = 0
     total_dist = 0
-    # print "planing_horizon:", len(sol)
+    print "planing_horizon:", len(sol)
     for day in range(len(sol)):
 
         # print "number of vehicles in day", day, ":",  len(sol[day])
         for vehicle in sol[day]:
             total_time += vehicle[-1].arrival_time
             total_dist += vehicle[-2].load
-            # print "total time:", vehicle[-1].arrival_time, "load:", vehicle[-2].load, "route:", vehicle[1:-1]
+            print "total time:", vehicle[-1].arrival_time, "load:", vehicle[-2].load, "route:", vehicle[1:-1]
     print sol
     return 0.2*total_time + 0.3*total_dist
 

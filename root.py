@@ -15,7 +15,7 @@ def find_best_sol(q, k, n):
     for i in range(n):
         removed_sol, chosen_orders = removal_huristic.shaw_removal_huristic(sol, q, k)
         sol = basic_greedy(removed_sol, chosen_orders)
-        test_sol(sol)
+        ##test_sol(sol)
         result["target function"].append(print_sol(sol))
     return result
 
@@ -30,6 +30,7 @@ def find_initial_sol(orders, sol):
 
 def test_sol(sol):
     # check each order is visited??
+    # check target function
 
     for day in range(len(sol)):
         for vehicle in range(len(sol[day])):
