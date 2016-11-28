@@ -82,7 +82,7 @@ def create_orders_dict():
         orders_to_num[order] = i
         N1.append(i)
         i +=1
-    N2 = [N1[-1]+1]
+    N2 = 0
     N = [0] + N1
     return N1, N2,N, num_to_orders, orders_to_num
 
@@ -146,7 +146,6 @@ get_t()
 
 # turn into sets
 N1 = set(N1)
-N2 = set(N2)
 N = set(N)
 
 
