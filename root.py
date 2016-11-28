@@ -5,18 +5,18 @@ import get_data as g
 random.seed(0)
 k = 5
 q = 2
-n=10
+n=20
 
 def find_best_sol(q, k, n):
     all_orders = list(g.N1)
-    empty_sol = [[] for k in range(int(g.T))]
+    empty_sol = [[[Stop(0, 0, 0), Stop(6, 0, 0)]] for k in range(int(g.T))]
     sol = find_initial_sol(all_orders, empty_sol)
     result = {"target function":[]}
     for i in range(n):
         removed_sol, chosen_orders = removal_huristic.shaw_removal_huristic(sol, q, k)
         sol = basic_greedy(removed_sol, chosen_orders)
-        ##test_sol(sol)
-        result["target function"].append(print_sol(sol))
+        print_sol(sol)
+        result["target function"].append(calc_target_objective(sol))
     return result
 
 def find_initial_sol(orders, sol):
@@ -24,8 +24,9 @@ def find_initial_sol(orders, sol):
     while len(orders_copy)>0:
         for i in orders_copy:
             order_data = minimum_insertion_cost(i, sol)
-            sol = insert_order(sol, order_data)
+            sol = insert_order(sol, order_data, i)
             orders_copy.remove(i)
+    print "init", sol
     return sol
 
 def test_sol(sol):

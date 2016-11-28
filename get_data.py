@@ -2,7 +2,7 @@ import xlrd
 import numpy as np
 
 
-xl_data = xlrd.open_workbook('50_Test_Instance.xlsx')
+xl_data = xlrd.open_workbook('Test_Instance.xlsx')
 orders_sheet = xl_data.sheet_by_name('Orders')
 Vehicle_sheet = xl_data.sheet_by_name('Vehicle')
 distance_sheet = xl_data.sheet_by_name('Distance Matrix')
@@ -26,7 +26,7 @@ C = Vehicle_sheet.cell(0, 1)
 W = Vehicle_sheet.cell(1, 1)
 
 # shift length
-shift_length = 14400
+shift_length = 3000
 
 def gcd(a, b):
     if a < b:
@@ -110,18 +110,21 @@ def get_t():
     return t
 
 def print_sol(sol):
-    total_time = 0
-    total_dist = 0
     print "planing_horizon:", len(sol)
     for day in range(len(sol)):
+        for vehicle in sol[day]:
+            print "day", day+1 ,"vehicle", sol[day].index(vehicle), "route:", vehicle[1:-1]
 
+def calc_target_objective(sol):
+    total_time = 0
+    total_dist = 0
+    for day in range(len(sol)):
         # print "number of vehicles in day", day, ":",  len(sol[day])
         for vehicle in sol[day]:
             total_time += vehicle[-1].arrival_time
-            total_dist += vehicle[-2].load
-            print "total time:", vehicle[-1].arrival_time, "load:", vehicle[-2].load, "route:", vehicle[1:-1]
-    print sol
-    return 0.2*total_time + 0.3*total_dist
+            for order in range(len(vehicle)-1):
+                total_dist+= d[vehicle[order].order_number, vehicle[order+1].order_number]
+    return 0.2 * total_time + 0.3 * total_dist
 
 
 class Stop(object):
