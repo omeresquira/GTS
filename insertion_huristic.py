@@ -45,6 +45,46 @@ def insert_order(sol, order_data):
             sol[day-1][vehicle] = route[2]
     return sol
 
+
+def minimum_insertion_cost(i, sol):
+    # run over all possible schedules
+    possible_schedule = g.Pr[g.r[i]]
+    min_sched_cost = numpy.inf
+    for sched in possible_schedule:
+        # initialize the cost per day for each schedules
+        all_days_costs = 0
+        # run over all days in sched
+        for day in sched:
+            # initialize the cost per vehicle for each day in a specific schedule
+            minimal_vehicle_cost = numpy.inf
+            for vehicle in sol[day - 1]:
+                # save vehicle index
+                vehicle_number = sol[day - 1].index(vehicle)
+                # check if capacity constraint is broken
+                if vehicle[-2].load + g.w[i] > g.C:
+                    continue
+                # initialize the cost per rout for vehicle for each day in a specific schedule
+                minimal_route_cost = numpy.inf
+                # run over all orders per vehicle
+                for j in range(len(vehicle) - 1):
+                    # if we are at the middle of the route
+                    if vehicle[j+1].order_number != 6:
+                        dist_added = g.d[vehicle[j].order_number, i] + g.d[i, vehicle[j+1].order_number]\
+                                     - g.d[vehicle[j].order_number, vehicle[j+1].order_number]
+                        time_added = g.t[vehicle[j].order_number, i] + g.t[i, vehicle[j + 1].order_number] \
+                                     - g.t[vehicle[j].order_number, vehicle[j + 1].order_number]
+                    # check if we are at the landfill
+                    else:
+                        dist_added = g.d[vehicle[j].order_number, i] + g.d[i, 0] - g.d[vehicle[j].order_number, 0]
+                        time_added = g.t[vehicle[j].order_number, i] + g.t[i, 0] - g.t[vehicle[j].order_number, 0]
+
+                    if vehicle[-1].arrival_time +  time_added > g.shift_length:
+                        continue
+
+
+
+
+
 def minimum_insertion_cost(i, sol):
     solution = copy.deepcopy(sol)
     # take all possible schedules for order i
@@ -82,27 +122,19 @@ def minimum_insertion_cost(i, sol):
                     #check shift length constraint
                     if new_route[-1].arrival_time > g.shift_length:
                         continue
-                    time_added = new_route[-1].arrival_time - orig_total_time
+                    # time_added = new_route[-1].arrival_time - orig_total_time
+
                     if vehicle[j+1].order_number != 6:
                         dist_added = g.d[vehicle[j].order_number, i] + g.d[i, vehicle[j+1].order_number]\
                                      - g.d[vehicle[j].order_number, vehicle[j+1].order_number]
-                        if dist_added < 0:
-                            print "******************************"
-                            print vehicle[j].order_number, i , vehicle[j+1].order_number
-                            print g.num_to_orders[vehicle[j].order_number], g.num_to_orders[i] , g.num_to_orders[vehicle[j+1].order_number]
-                            print  g.d[vehicle[j].order_number, i] , g.d[i, vehicle[j+1].order_number]
-                            print  g.d[vehicle[j].order_number, vehicle[j+1].order_number]
-                            print "******************************"
+                        time_added = g.t[vehicle[j].order_number, i] + g.t[i, vehicle[j + 1].order_number] \
+                                     - g.t[vehicle[j].order_number, vehicle[j + 1].order_number]
+
                     else:
                         dist_added = g.d[vehicle[j].order_number, i] + g.d[i, 0] - g.d[vehicle[j].order_number, 0]
-                        if dist_added < 0:
-                            print "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
-                            print vehicle[j].order_number, i , 0
-                            print g.num_to_orders[vehicle[j].order_number], g.num_to_orders[i] , g.num_to_orders[0]
-                            print  g.d[vehicle[j].order_number, i] , g.d[i, 0]
-                            print  g.d[vehicle[j].order_number, 0]
-                            print "******************************"
+                        time_added = g.t[vehicle[j].order_number, i] + g.t[i, 0] - g.t[vehicle[j].order_number, 0]
 
+                    print dist_added, time_added
                     #print time_added,dist_added
                     new_route_cost = 0.2*time_added + 0.3*dist_added
                     if new_route_cost < minimal_route_cost:
