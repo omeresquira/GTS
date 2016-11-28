@@ -52,7 +52,7 @@ def insert_order(sol, order_data, i):
             g.t[new_route[order-1].order_number, new_sol[day][vehicle][order].order_number] + g.s[new_route[order-1].order_number],
                                   new_route[order-1].load + g.w[new_sol[day][vehicle][order].order_number]))
 
-        new_route.append(Stop(N2, new_route[-1].arrival_time + g.t[new_route[-1].order_number, 0] + g.s[new_route[-1].order_number],0))
+        new_route.append(Stop(g.N2, new_route[-1].arrival_time + g.t[new_route[-1].order_number, 0] + g.s[new_route[-1].order_number],0))
         new_sol[day][vehicle] = new_route
 
 
