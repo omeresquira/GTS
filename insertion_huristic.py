@@ -29,8 +29,9 @@ def basic_greedy(sol, chosen_orders):
             order_data = minimum_insertion_cost(i, sol)
             if order_data[0] < minimal_cost_for_order:
                 chosen_order = i
+                minimal_cost_for_order = order_data[0]
                 chosen_data = order_data
-        sol = insert_order(sol, chosen_data, i)
+        sol = insert_order(sol, chosen_data, chosen_order)
         chosen_orders.remove(chosen_order)
     return sol
 
@@ -40,23 +41,25 @@ def insert_order(sol, order_data, i):
         vehicle = data[1]
         slot = data[2]
         day = data[0] - 1
-        new_sol = copy.deepcopy(sol)
+        old_time = sol[day][vehicle][-1].arrival_time
+        new_route = sol[day][vehicle][:slot+1]
+        new_route.append(Stop(i, sol[day][vehicle][slot].arrival_time+g.t[sol[day][vehicle][slot].order_number,i]+
+                              g.s[sol[day][vehicle][slot].order_number], sol[day][vehicle][slot].load+g.w[i]))
 
-        new_route = new_sol[day][vehicle][:slot+1]
-        new_route.append(Stop(i, new_sol[day][vehicle][slot].arrival_time+g.t[new_sol[day][vehicle][slot].order_number,i]+
-                              g.s[new_sol[day][vehicle][slot].order_number], new_sol[day][vehicle][slot].load+g.w[i]))
 
-        for order in range(slot+1,len(new_sol[day][vehicle])-1):
+        for order in range(slot+1,len(sol[day][vehicle])-1):
             # add all orders after j to the new route
-            new_route.append(Stop(sol[day][vehicle][order].order_number, new_route[order-1].arrival_time + \
-            g.t[new_route[order-1].order_number, new_sol[day][vehicle][order].order_number] + g.s[new_route[order-1].order_number],
-                                  new_route[order-1].load + g.w[new_sol[day][vehicle][order].order_number]))
+            order_number = sol[day][vehicle][order].order_number
+            new_time = new_route[-1].arrival_time + g.t[new_route[-1].order_number, sol[day][vehicle][order].order_number] + g.s[new_route[-1].order_number]
+            new_load = new_route[-1].load + g.w[sol[day][vehicle][order].order_number]
+            new_route.append(Stop(order_number, new_time, new_load))
 
         new_route.append(Stop(g.N2, new_route[-1].arrival_time + g.t[new_route[-1].order_number, 0] + g.s[new_route[-1].order_number],0))
-        new_sol[day][vehicle] = new_route
+        if new_route[-1].arrival_time + g.t[new_route[-1].order_number, 0] + g.s[new_route[-1].order_number]>3000:
+            print "hey"
+        sol[day][vehicle] = new_route
 
-
-    return new_sol
+    return sol
 
 
 def minimum_insertion_cost(i, sol):
@@ -77,7 +80,7 @@ def minimum_insertion_cost(i, sol):
                     flag = True
                     break
             if flag == False:
-                sol[day - 1].append([Stop(0, 0, 0), Stop(N2, 0, 0)])
+                sol[day - 1].append([Stop(0, 0, 0), Stop(g.N2, 0, 0)])
             for vehicle in sol[day - 1]:
                 # save vehicle index
                 vehicle_number = sol[day - 1].index(vehicle)
@@ -89,40 +92,37 @@ def minimum_insertion_cost(i, sol):
                 # run over all orders per vehicle
                 for j in range(0,len(vehicle)-1):
                     # if we are at the middle of the route
-
                     if vehicle[j+1].order_number != g.N2:
                         dist_added = g.d[vehicle[j].order_number, i] + g.d[i, vehicle[j+1].order_number]\
                                      - g.d[vehicle[j].order_number, vehicle[j+1].order_number]
 
-                        time_added = g.t[vehicle[j].order_number, i] + g.t[i, vehicle[j + 1].order_number] \
+                        time_added = g.s[i] + g.t[vehicle[j].order_number, i] + g.t[i, vehicle[j + 1].order_number] \
                                      - g.t[vehicle[j].order_number, vehicle[j + 1].order_number]
                     # check if we are at the landfill
                     else:
                         dist_added = g.d[vehicle[j].order_number, i] + g.d[i, 0] - g.d[vehicle[j].order_number, 0]
-                        time_added = g.t[vehicle[j].order_number, i] + g.t[i, 0] - g.t[vehicle[j].order_number, 0]
+                        time_added = g.s[i] + g.t[vehicle[j].order_number, i] + g.t[i, 0] - g.t[vehicle[j].order_number, 0]
 
-                    if vehicle[-1].arrival_time +  time_added > g.shift_length:
+
+                    if vehicle[-1].arrival_time + time_added > g.shift_length:
                         continue
-
-                    if time_added+vehicle[-1].arrival_time>3000:
-                        print time_added+vehicle[-1].arrival_time
-                    delta_route_cost = time_added*0.2 + dist_added*0.3
-
-
+                    # delta_route_cost = time_added*0.2 + dist_added*0.3
+                    delta_route_cost = time_added
                     if delta_route_cost < minimal_route_cost:
                         minimal_location = j
                         minimal_route_cost = delta_route_cost
+                        minimal_vehicle = vehicle_number
+
+                        # print time_added + vehicle[-1].arrival_time
 
 
                 if minimal_route_cost < minimal_vehicle_cost:
-                    minimal_vehicle = vehicle_number
                     minimal_vehicle_cost = minimal_route_cost
 
             routes_for_days.append((day, minimal_vehicle, minimal_location))
             all_days_costs += minimal_vehicle_cost
             if all_days_costs < min_sched_cost:
                 min_sched = (all_days_costs, routes_for_days)
-
 
         return min_sched
 

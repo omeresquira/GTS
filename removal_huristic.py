@@ -59,7 +59,7 @@ def shaw_removal_huristic(sol , q, k):
                     sol[day][vehicle].remove(sol[day][vehicle][i])
                     removed = True
 
-            if removed == True:
+            if removed:
                 for i in range(1, len(sol[day][vehicle])):
                     order_num = sol[day][vehicle][i].order_number
 

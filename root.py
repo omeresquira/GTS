@@ -6,29 +6,31 @@ import numpy
 random.seed(0)
 k = 5
 q = 2
-n=400
+n=20
 
 def find_best_sol(q, k, n):
     all_orders = list(g.N1)
-    empty_sol = [[[Stop(0, 0, 0), Stop(N2, 0, 0)]] for k in range(int(g.T))]
+    empty_sol = [[[Stop(0, 0, 0), Stop(g.N2, 0, 0)]] for k in range(int(g.T))]
     sol = find_initial_sol(all_orders, empty_sol)
+    test_sol(sol)
     best_sol =[sol, calc_target_objective(sol)]
-    result = {"target function":[]}
+    temp_sol = copy.deepcopy(sol)
+    result = {"target function":[best_sol[1]]}
     for i in range(n):
-        removed_sol, chosen_orders = removal_huristic.shaw_removal_huristic(best_sol[0], q, k)
+        removed_sol, chosen_orders = removal_huristic.shaw_removal_huristic(temp_sol, q, k)
         temp_sol = basic_greedy(removed_sol, chosen_orders)
+        test_sol(temp_sol)
         objective = calc_target_objective(temp_sol)
         if objective < best_sol[1]:
-            for day in range(len(temp_sol)):
-                for vehicle in range(len(temp_sol[day]) - 1, -1, -1):
-                    if len(temp_sol[day][vehicle]) == 2:
-                        temp_sol[day].pop(vehicle)
-            test_sol(temp_sol)
             best_sol[0] = temp_sol
             best_sol[1] = objective
             print best_sol
             print best_sol[1]
         result["target function"].append(objective)
+    for day in range(len(sol)):
+        for vehicle in range(len(sol[day]) - 1, -1, -1):
+            if len(sol[day][vehicle]) == 2:
+                sol[day].pop(vehicle)
     return result, best_sol
 
 def find_initial_sol(orders, sol):
