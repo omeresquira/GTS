@@ -64,7 +64,7 @@ r = [0] + r
 
 # orders_to_num - dict that maps a name to an order number
 # num_to_orders - dict that maps number to order name
-# N1 - list of orders number
+# N1 - list of orders numbers
 # N2 - list of landfils
 
 def create_orders_dict():
@@ -109,23 +109,6 @@ def get_t():
         t[N[orders_to_num[origins[i]]], N[orders_to_num[destinations[i]]]] = duration[i]
     return t
 
-def print_sol(sol):
-    print "planing_horizon:", len(sol)
-    for day in range(len(sol)):
-        for vehicle in sol[day]:
-            print "day", day+1 ,"vehicle", sol[day].index(vehicle), "route:", vehicle[1:-1]
-
-def calc_target_objective(sol):
-    total_time = 0
-    total_dist = 0
-    for day in range(len(sol)):
-        # print "number of vehicles in day", day, ":",  len(sol[day])
-        for vehicle in sol[day]:
-            total_time += vehicle[-1].arrival_time
-            for order in range(len(vehicle)-1):
-                total_dist+= d[vehicle[order].order_number, vehicle[order+1].order_number]
-    return 0.2 * total_time + 0.3 * total_dist
-
 
 class Stop(object):
     def __init__(self, order_number, arrival_time, load):
@@ -138,6 +121,43 @@ class Stop(object):
 
     def __repr__(self):
         return str(self.order_number)
+
+def display_sol(sol):
+    total_service_time = 0
+    total_travel_time = 0
+    for day_num in range(len(sol)):
+        print "day", day_num+1, ":"
+        print " "
+        for vehicle_num in range(len(sol[day_num])):
+            vehicle_service_time = 0
+            print "  vehicle", vehicle_num+1, "route:" ,
+            print "depot -->" ,
+            for order in sol[day_num][vehicle_num][1:-1]:
+                vehicle_service_time += s[order.order_number]
+                #print "( order", order.order_number, ", service time:", s[order.order_number],")" " -->" ,
+                print order.order_number, " -->",
+            print "landfill"
+            print "  route total service time:", vehicle_service_time, ", route total travel time:", sol[day_num][vehicle_num][-1].arrival_time - vehicle_service_time
+            print " "
+            total_service_time += vehicle_service_time
+            total_travel_time += (sol[day_num][vehicle_num][-1].arrival_time - vehicle_service_time)
+        print " "
+        print "  total service time for day",day_num+1, ":", total_service_time, ", total travel time for day",day_num+1, ":", total_travel_time
+        print " "
+
+    return
+
+def calc_target_objective(sol):
+    total_time = 0
+    total_dist = 0
+    for day in range(len(sol)):
+        # print "number of vehicles in day", day, ":",  len(sol[day])
+        for vehicle in sol[day]:
+            total_time += vehicle[-1].arrival_time
+            for order in range(len(vehicle)-1):
+                total_dist+= d[vehicle[order].order_number, vehicle[order+1].order_number]
+    return 0.2 * total_time + 0.3 * total_dist
+
 
 
 create_orders_dict()

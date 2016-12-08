@@ -3,31 +3,36 @@ import copy
 import get_data as g
 from get_data import Stop
 
-# a solution includes 2 parts: sol, schedule
-# sol:
+# a solution is a list builed of sub-lists
+
+# each day is represented by a list of all vehicles routes in that day
+# each vehicle is represented by a list with the route for one day - all orders to service
+# each order is represented by a tuple (order number, arrival time, load)
+
+# for example: solution = [[day1:[vehicle1 route],[vehicle2 route]], [day2:[vehicle1 route],[vehicle2 route]]]
+
 # len(sol) = number of days in the planing horizon
-# each index contains a list with all the routs for one day, each route contains tuples (i, Sid, Fid) in the order of the visit
-# schedule:
-# schedule is a dict for each order, the value is the schedule chosen in sol
 
 # sol = [[[Stop(0,0,0), Stop(1,777.0,6.48), Stop(6,1564.0,0)]], [[Stop(0,0,0), Stop(2,776.0,6.48), Stop(6,1562.0,0)]],
 #      [[Stop(0,0,0), Stop(3,772.0,6.48), Stop(6,1554.0,0)]],[[Stop(0,0,0), Stop(4,764.0,12.96), Stop(5,792.0,19.44),
 #                                                              Stop(6,1576.0,0)]]]
-# schedule = {1:0, 2:1, 3:2, 4:3, 5:3}
 
+# weights for similarity function:
+rythem_weight = 0.2
+service_time_weight = 0.4
 
 # function that checks similarity of two orders based on service time and rhythm
 def similarity_func(i, j):
-    return 0.2 * abs(g.r[i] - g.r[j]) + 0.4 * abs(g.s[i] - g.s[j])
+    return rythem_weight * abs(g.r[i] - g.r[j]) + service_time_weight * abs(g.s[i] - g.s[j])
 
 
-def shaw_removal_huristic(sol , q, k):
+def shaw_removal_huristic(sol, q, k):
 
     # sol - a solution to destract
-    # q - number of schedules to remove from orders
+    # q - number of orders to remove from the solution
     # k - a number in R+, degree of randomness, less randomness when k is larger k
 
-    # choose a random order
+    # choose a random order from all orders numbers
     chosen_order = random.randint(1,len(g.N1))
     unchosen_orders = copy.deepcopy(g.N1)
 
@@ -49,7 +54,7 @@ def shaw_removal_huristic(sol , q, k):
         chosen_orders.append(chosen_order)
         unchosen_orders.remove(chosen_order)
 
-    # remove the orders from sol
+    # remove the chosen orders from sol
     for day in range(len(sol)):
         for vehicle in range(len(sol[day])):
 
