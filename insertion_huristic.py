@@ -27,6 +27,17 @@ dist_weight = 0
 
 def basic_greedy(sol, chosen_orders):
     while len(chosen_orders)>0:
+
+        # before calculating minimal cost and after adding orders check if there are one empty vehicle per day
+        for day in sol:
+            flag = False
+            for vehicle in sol[day - 1]:
+                if len(vehicle) == 2:
+                    flag = True
+                    break
+            if flag == False:
+                sol[day - 1].append([Stop(0, 0, 0), Stop(g.N2, 0, 0)])
+
         minimal_cost_for_order = numpy.inf
 
         # calculates objective for each order and finds best order to insert
@@ -97,13 +108,7 @@ def minimum_insertion_cost(i, sol):
         for day in sched:
             # initialize the cost per vehicle for each day in a specific schedule
             minimal_vehicle_cost = numpy.inf
-            flag = False
-            for vehicle in sol[day - 1]:
-                if len(vehicle)==2:
-                    flag = True
-                    break
-            if flag == False:
-                sol[day - 1].append([Stop(0, 0, 0), Stop(g.N2, 0, 0)])
+
             for vehicle in sol[day - 1]:
                 # save vehicle index
                 vehicle_number = sol[day - 1].index(vehicle)
