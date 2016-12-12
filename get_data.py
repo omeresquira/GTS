@@ -135,7 +135,7 @@ N1 = set(N1)
 N = set(N)
 
 
-# print 'N1:', N1
+print 'N1:', N1
 # print 'N2:', N2
 # print 'N:', N
 # print 'orders_to_num:', orders_to_num

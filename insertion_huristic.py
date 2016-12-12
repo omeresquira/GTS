@@ -1,8 +1,6 @@
 import numpy
 import get_data as g
 from get_data import *
-import removal_huristic
-import copy
 
 # weights for objective function: time_added * time_weight + dist_added * dist_weight
 time_weight = 1
@@ -22,22 +20,10 @@ dist_weight = 0
 #      [[Stop(0,0,0), Stop(3,772.0,6.48), Stop(6,1554.0,0)]],[[Stop(0,0,0), Stop(4,764.0,12.96), Stop(5,792.0,19.44),
 #                                                              Stop(6,1576.0,0)]]]
 
-
 # basic greedy func gets a destracted solution and a list of orders, picks their insertion order and returns a full solution
 
 def basic_greedy(sol, chosen_orders):
     while len(chosen_orders)>0:
-
-        # before calculating minimal cost and after adding orders check if there are one empty vehicle per day
-        for day in sol:
-            flag = False
-            for vehicle in sol[day - 1]:
-                if len(vehicle) == 2:
-                    flag = True
-                    break
-            if flag == False:
-                sol[day - 1].append([Stop(0, 0, 0), Stop(g.N2, 0, 0)])
-
         minimal_cost_for_order = numpy.inf
 
         # calculates objective for each order and finds best order to insert
@@ -58,17 +44,14 @@ def basic_greedy(sol, chosen_orders):
                 sol[i] = sol[i][:-1]
     return sol
 
-
-
 # insert order func gets a solution, order data and order number, and inserts the order to the solution
 # order data: [objective value, [(day in schedule, vehicle, slot in route)]
-
 def insert_order(sol, order_data, i):
     # extract insert values
     for data in order_data[1]:
-        day = data[0] - 1
         vehicle = data[1]
         slot = data[2]
+        day = data[0] - 1
         old_time = sol[day][vehicle][-1].arrival_time
         new_route = sol[day][vehicle][:slot+1]
         # insert order i in the chosen slot in the route
@@ -89,12 +72,9 @@ def insert_order(sol, order_data, i):
 
     return sol
 
-
-
 # minimum insertion cost func gets order number and solution, and returns min objective value and best place to insert the order
 # the func returns min_sched for order i
 # min_sched: [objective value, [(day in schedule, vehicle, slot in route)]
-
 def minimum_insertion_cost(i, sol):
     # run over all possible schedules
     global dist_added
@@ -105,8 +85,17 @@ def minimum_insertion_cost(i, sol):
         all_days_costs = 0
         # run over all days in sched
         routes_for_days = []
+
         for day in sched:
             # initialize the cost per vehicle for each day in a specific schedule
+            flag = False
+            for vehicle in sol[day - 1]:
+                if len(vehicle)==2:
+                    flag = True
+                    break
+            if flag == False:
+                sol[day - 1].append([Stop(0, 0, 0), Stop(g.N2, 0, 0)])
+
             minimal_vehicle_cost = numpy.inf
 
             for vehicle in sol[day - 1]:
@@ -115,6 +104,7 @@ def minimum_insertion_cost(i, sol):
                 # check if capacity constraint is broken
                 if vehicle[-2].load + g.w[i] > g.C:
                     continue
+
                 # run over all orders per vehicle to find best insertion slot
                 for j in range(0,len(vehicle)-1):
                     # if we are at the middle of the route
@@ -147,10 +137,11 @@ def minimum_insertion_cost(i, sol):
             routes_for_days.append((day, minimal_vehicle, minimal_location))
             all_days_costs += minimal_vehicle_cost
 
-    # saves only best schedule
-    if all_days_costs < min_sched_cost:
-        min_sched = (all_days_costs, routes_for_days)
+        # saves only best schedule
+        if all_days_costs < min_sched_cost:
+            min_sched = (all_days_costs, routes_for_days)
 
     return min_sched
+
 
 

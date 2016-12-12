@@ -1,7 +1,8 @@
 import random
 from insertion_huristic import *
+from removal_huristic import *
 import get_data as g
-import numpy
+import copy
 
 random.seed(0)
 # sol - a solution to destract
@@ -25,7 +26,7 @@ def find_best_sol(q, k, n):
     temp_sol = copy.deepcopy(sol)
     result = {"target function":[best_sol[1]]}
     for i in range(n):
-        removed_sol, chosen_orders = removal_huristic.shaw_removal_huristic(temp_sol, q, k)
+        removed_sol, chosen_orders = shaw_removal_huristic(temp_sol, q, k)
         temp_sol = basic_greedy(removed_sol, chosen_orders)
         test_sol(temp_sol)
         objective = calc_target_objective(temp_sol)
@@ -56,15 +57,11 @@ def find_initial_sol(orders, sol):
 
 
 def test_sol(sol):
-
-    #create a set of orders to check if all orders are in sol
+    # create list of all orders
     orders_sol = []
     for day in range(len(sol)):
         for vehicle in range(len(sol[day])):
-
-            #add orders to orders_sol
             orders_sol.extend(sol[day][vehicle][1:-1])
-
             # check capacity for each vehicle
             if sol[day][vehicle][-2].load > g.C:
                 print "over load on vehicle ", vehicle
@@ -74,13 +71,17 @@ def test_sol(sol):
             # check for each vehicle that starts at depo and ends at landfill
             if sol[day][vehicle][-1].order_number != g.N2:
                 print "vehicle",vehicle, "route does not end at landfill "
-            # check if all orders are in sol
             else:
                 continue
+
+    print "***********", set(orders_sol)
     orders_sol = set(orders_sol)
-    if orders_sol != g.N1:
-        missing_orders = orders_sol - g.N1
+    if set(orders_sol).issuperset(g.N1):
+        pass
+    else:
+        missing_orders = g.N1.difference(orders_sol)
         print "orders", missing_orders, "are not in the solution"
+
 
 def display_sol(sol):
     total_service_time = 0
@@ -117,7 +118,6 @@ def calc_target_objective(sol):
             for order in range(len(vehicle)-1):
                 total_dist+= d[vehicle[order].order_number, vehicle[order+1].order_number]
     return 0.2 * total_time + 0.3 * total_dist
-
 
 best_solution = find_best_sol(q, k, n)
 print display_sol(best_solution[1][0])

@@ -17,7 +17,9 @@ from get_data import Stop
 #      [[Stop(0,0,0), Stop(3,772.0,6.48), Stop(6,1554.0,0)]],[[Stop(0,0,0), Stop(4,764.0,12.96), Stop(5,792.0,19.44),
 #                                                              Stop(6,1576.0,0)]]]
 
+
 # weights for similarity function:
+
 rythem_weight = 0.2
 service_time_weight = 0.4
 
