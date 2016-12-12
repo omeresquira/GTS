@@ -1,8 +1,10 @@
-import random
 from insertion_huristic import *
 from removal_huristic import *
 import get_data as g
 import copy
+import datetime
+import time
+import os
 
 random.seed(0)
 # sol - a solution to destract
@@ -61,7 +63,6 @@ def test_sol(sol):
     orders_sol = []
     for day in range(len(sol)):
         for vehicle in range(len(sol[day])):
-            orders_sol.extend(sol[day][vehicle][1:-1])
             # check capacity for each vehicle
             if sol[day][vehicle][-2].load > g.C:
                 print "over load on vehicle ", vehicle
@@ -72,41 +73,41 @@ def test_sol(sol):
             if sol[day][vehicle][-1].order_number != g.N2:
                 print "vehicle",vehicle, "route does not end at landfill "
             else:
-                continue
+                pass
+            for order in range(1,len(sol[day][vehicle])-1):
+                orders_sol.append(sol[day][vehicle][order].order_number)
 
-    print "***********", set(orders_sol)
     orders_sol = set(orders_sol)
-    if set(orders_sol).issuperset(g.N1):
+    if orders_sol.issuperset(g.N1):
         pass
     else:
-        missing_orders = g.N1.difference(orders_sol)
+        missing_orders = (g.N1).difference(orders_sol)
         print "orders", missing_orders, "are not in the solution"
 
 
 def display_sol(sol):
+
+    instance = g.instanceFileName
+    date = time.strftime("%d-%m-%Y")
+    hour = time.strftime("%I:%M:%S")
+
     total_service_time = 0
     total_travel_time = 0
-    for day_num in range(len(sol)):
-        print "day", day_num+1, ":"
-        print " "
-        for vehicle_num in range(len(sol[day_num])):
-            vehicle_service_time = 0
-            print "  vehicle", vehicle_num+1, "route:" ,
-            print "depot -->" ,
-            for order in sol[day_num][vehicle_num][1:-1]:
-                vehicle_service_time += s[order.order_number]
-                #print "( order", order.order_number, ", service time:", s[order.order_number],")" " -->" ,
-                print order.order_number, " -->",
-            print "landfill"
-            print "  route total service time:", vehicle_service_time, ", route total travel time:", sol[day_num][vehicle_num][-1].arrival_time - vehicle_service_time
-            print " "
-            total_service_time += vehicle_service_time
-            total_travel_time += (sol[day_num][vehicle_num][-1].arrival_time - vehicle_service_time)
-        print " "
-        print "  total service time for day",day_num+1, ":", total_service_time, ", total travel time for day",day_num+1, ":", total_travel_time
-        print " "
-
-    return
+    with open('./results/{}_{}.txt'.format(instance[:-5], date), 'w+') as txt_file:
+        for day_num in range(len(sol)):
+                txt_file.write("day {} : \n".format(day_num+1))
+                for vehicle_num in range(len(sol[day_num])):
+                    vehicle_service_time = 0
+                    txt_file.write("  vehicle {} route: depot -->".format(vehicle_num+1))
+                    for order in sol[day_num][vehicle_num][1:-1]:
+                        vehicle_service_time += s[order.order_number]
+                        #print "( order", order.order_number, ", service time:", s[order.order_number],")" " -->" ,
+                        txt_file.write("{}  -->".format(order.order_number))
+                    txt_file.write("landfill \n")
+                    txt_file.write("  route total service time: {} , route total travel time: {} \n\n".format(vehicle_service_time, sol[day_num][vehicle_num][-1].arrival_time - vehicle_service_time))
+                    total_service_time += vehicle_service_time
+                    total_travel_time += (sol[day_num][vehicle_num][-1].arrival_time - vehicle_service_time)
+                txt_file.write("  total service time for day {} : {} , total travel time for day {} : {} \n\n".format(day_num+1, total_service_time, day_num+1, total_travel_time ))
 
 def calc_target_objective(sol):
     total_time = 0
@@ -116,7 +117,7 @@ def calc_target_objective(sol):
         for vehicle in sol[day]:
             total_time += vehicle[-1].arrival_time
             for order in range(len(vehicle)-1):
-                total_dist+= d[vehicle[order].order_number, vehicle[order+1].order_number]
+                total_dist+= g.d[vehicle[order].order_number, vehicle[order+1].order_number]
     return 0.2 * total_time + 0.3 * total_dist
 
 best_solution = find_best_sol(q, k, n)

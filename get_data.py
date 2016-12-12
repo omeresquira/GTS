@@ -1,8 +1,8 @@
 import xlrd
 import numpy as np
 
-
-xl_data = xlrd.open_workbook('Test_Instance.xlsx')
+instanceFileName = 'Test_Instance.xlsx'
+xl_data = xlrd.open_workbook(instanceFileName)
 orders_sheet = xl_data.sheet_by_name('Orders')
 Vehicle_sheet = xl_data.sheet_by_name('Vehicle')
 distance_sheet = xl_data.sheet_by_name('Distance Matrix')
