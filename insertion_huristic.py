@@ -27,7 +27,17 @@ def basic_greedy(sol, chosen_orders):
         minimal_cost_for_order = numpy.inf
 
         # calculates objective for each order and finds best order to insert
+##        for day in range(len(sol)):
+##            flag = False
+##            for vehicle in sol[day]:
+##                if len(vehicle)==2:
+##                    flag = True
+##                    break
+##            if flag == False:
+##                sol[day].append([Stop(0, 0, 0), Stop(g.N2, 0, 0)])
+
         for i in chosen_orders:
+
             order_data = minimum_insertion_cost(i, sol)
             if order_data[0] < minimal_cost_for_order:
                 chosen_order = i
@@ -39,9 +49,9 @@ def basic_greedy(sol, chosen_orders):
         chosen_orders.remove(chosen_order)
 
         # remove empty vehicles from solution
-        for i in range(len(sol)):
-            if len(sol[i][-1]) == 2:
-                sol[i] = sol[i][:-1]
+##        for i in range(len(sol)):
+##            if len(sol[i][-1]) == 2:
+##                sol[i] = sol[i][:-1]
     return sol
 
 # insert order func gets a solution, order data and order number, and inserts the order to the solution
@@ -52,6 +62,10 @@ def insert_order(sol, order_data, i):
         vehicle = data[1]
         slot = data[2]
         day = data[0] - 1
+
+        if len(sol[day][vehicle]) == 2:
+            sol[day].append([Stop(0, 0, 0), Stop(g.N2, 0, 0)])
+
         old_time = sol[day][vehicle][-1].arrival_time
         new_route = sol[day][vehicle][:slot+1]
         # insert order i in the chosen slot in the route
@@ -88,13 +102,13 @@ def minimum_insertion_cost(i, sol):
 
         for day in sched:
             # initialize the cost per vehicle for each day in a specific schedule
-            flag = False
-            for vehicle in sol[day - 1]:
-                if len(vehicle)==2:
-                    flag = True
-                    break
-            if flag == False:
-                sol[day - 1].append([Stop(0, 0, 0), Stop(g.N2, 0, 0)])
+##            flag = False
+##            for vehicle in sol[day - 1]:
+##                if len(vehicle)==2:
+##                    flag = True
+##                    break
+##            if flag == False:
+##                sol[day - 1].append([Stop(0, 0, 0), Stop(g.N2, 0, 0)])
 
             minimal_vehicle_cost = numpy.inf
 
@@ -140,6 +154,7 @@ def minimum_insertion_cost(i, sol):
         # saves only best schedule
         if all_days_costs < min_sched_cost:
             min_sched = (all_days_costs, routes_for_days)
+
 
     return min_sched
 

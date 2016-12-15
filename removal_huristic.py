@@ -58,12 +58,15 @@ def shaw_removal_huristic(sol, q, k):
 
     # remove the chosen orders from sol
     for day in range(len(sol)):
+        vehicle_to_remove = []
         for vehicle in range(len(sol[day])):
 
             removed = False
             for i in range(len(sol[day][vehicle])-1,-1,-1):
                 if sol[day][vehicle][i].order_number in chosen_orders:
                     sol[day][vehicle].remove(sol[day][vehicle][i])
+                    if len(sol[day][vehicle]) == 2:
+                        vehicle_to_remove.append(vehicle)
                     removed = True
 
             if removed:
@@ -80,18 +83,9 @@ def shaw_removal_huristic(sol, q, k):
                                 g.s[sol[day][vehicle][i - 1].order_number]
                     sol[day][vehicle][i] = Stop(order_num, new_S , new_F)
 
-            # check if the vehicle has no orders, and remove vehicle location and landfill, if so.
-            # (put an empty list instead)
-            remove_vehicle_flag = True
-            for i in sol[day][vehicle]:
-                if i.order_number in g.N1:
-                    remove_vehicle_flag = False
-                    break
-            if remove_vehicle_flag:
-                sol[day][vehicle] = []
+        if len(vehicle_to_remove) > 0:
+            for v in range(len(sol[day])-1,-1,-1):
+                if v in vehicle_to_remove:
+                    sol[day].pop(v)
 
-        # check no orders are visited in a day, pop the vehicles so there is an empty list for that day.
-        for vehicle in range(len(sol[day])-1,-1,-1):
-            if len(sol[day][vehicle]) == 0:
-                sol[day].pop(vehicle)
     return sol, chosen_orders

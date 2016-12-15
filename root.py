@@ -10,9 +10,9 @@ random.seed(0)
 # sol - a solution to destract
 # q - number of orders to remove from the solution
 # k - a number in R+, degree of randomness, less randomness when k is larger k
-k = 5
-q = 5
-n = 20
+k = 10
+q = 10
+n = 1000   # number of iterations
 
 
 # find_best_sol func runs removal_huristic and basic_greedy n times to find best solution
@@ -36,8 +36,7 @@ def find_best_sol(q, k, n):
         if objective < best_sol[1]:
             best_sol[0] = temp_sol
             best_sol[1] = objective
-            print best_sol
-            print best_sol[1]
+            print i,best_sol[1]
         result["target function"].append(objective)
 ##    # deletes empty vehicles
 ##    for day in range(len(sol)):
@@ -121,5 +120,6 @@ def calc_target_objective(sol):
     return 0.2 * total_time + 0.3 * total_dist
 
 best_solution = find_best_sol(q, k, n)
-print display_sol(best_solution[1][0])
+display_sol(best_solution[1][0])
+#print best_solution[0]
 
