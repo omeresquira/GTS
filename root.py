@@ -12,7 +12,7 @@ random.seed(0)
 # k - a number in R+, degree of randomness, less randomness when k is larger k
 k = 10
 q = 10
-n = 1000   # number of iterations
+n = 1000  # number of iterations
 
 
 # find_best_sol func runs removal_huristic and basic_greedy n times to find best solution
@@ -28,11 +28,14 @@ def find_best_sol(q, k, n):
     temp_sol = copy.deepcopy(sol)
     result = {"target function":[best_sol[1]]}
     for i in range(n):
+        # removed_sol, chosen_orders = worst_removel(temp_sol, q, k)
         removed_sol, chosen_orders = shaw_removal_huristic(temp_sol, q, k)
+        # temp_sol = regret_huristic(removed_sol, chosen_orders)
         temp_sol = basic_greedy(removed_sol, chosen_orders)
         test_sol(temp_sol)
         objective = calc_target_objective(temp_sol)
         # saves best solution if one was found
+        # print objective
         if objective < best_sol[1]:
             best_sol[0] = temp_sol
             best_sol[1] = objective
@@ -53,7 +56,7 @@ def find_initial_sol(orders, sol):
             order_data = minimum_insertion_cost(i, sol)
             sol = insert_order(sol, order_data, i)
             orders_copy.remove(i)
-    print "init", sol
+    # print "init", sol
     return sol
 
 
@@ -88,25 +91,33 @@ def display_sol(sol):
 
     instance = g.instanceFileName
     date = time.strftime("%d-%m-%Y")
-    hour = time.strftime("%I:%M:%S")
+    hour = time.strftime("%I_%M_%S")
 
     total_service_time = 0
     total_travel_time = 0
-    with open('./results/{}_{}.txt'.format(instance[:-5], date), 'w+') as txt_file:
+    with open('./results/{}_{}_{}.txt'.format(instance[:-5], date, hour), 'w+') as txt_file:
+        txt_file.write("total objective: {}  \n\n".format(calc_target_objective(sol)))
+        txt_file.write("parameters: k={}, q={}, n={}  \n\n".format(k, q, n))
         for day_num in range(len(sol)):
                 txt_file.write("day {} : \n".format(day_num+1))
+
+                #delete empty vehicles
+                for vehicle in range(len(sol[day_num])-1, -1, -1):
+                    if len(sol[day_num][vehicle]) == 2:
+                        sol[day_num].pop(vehicle)
+
                 for vehicle_num in range(len(sol[day_num])):
                     vehicle_service_time = 0
                     txt_file.write("  vehicle {} route: depot -->".format(vehicle_num+1))
                     for order in sol[day_num][vehicle_num][1:-1]:
                         vehicle_service_time += s[order.order_number]
-                        #print "( order", order.order_number, ", service time:", s[order.order_number],")" " -->" ,
                         txt_file.write("{}  -->".format(order.order_number))
                     txt_file.write("landfill \n")
                     txt_file.write("  route total service time: {} , route total travel time: {} \n\n".format(vehicle_service_time, sol[day_num][vehicle_num][-1].arrival_time - vehicle_service_time))
                     total_service_time += vehicle_service_time
                     total_travel_time += (sol[day_num][vehicle_num][-1].arrival_time - vehicle_service_time)
                 txt_file.write("  total service time for day {} : {} , total travel time for day {} : {} \n\n".format(day_num+1, total_service_time, day_num+1, total_travel_time ))
+
 
 def calc_target_objective(sol):
     total_time = 0

@@ -1,0 +1,112 @@
+total objective: 16861.4744  
+
+parameters: k=10, q=10, n=100  
+
+day 1 : 
+  vehicle 1 route: depot -->29  -->32  -->82  -->81  -->10  -->8  -->9  -->landfill 
+  route total service time: 838.0 , route total travel time: 1872.0 
+
+  vehicle 2 route: depot -->208  -->165  -->210  -->31  -->197  -->landfill 
+  route total service time: 1330.0 , route total travel time: 1613.0 
+
+  vehicle 3 route: depot -->178  -->164  -->landfill 
+  route total service time: 697.0 , route total travel time: 1434.0 
+
+  vehicle 4 route: depot -->83  -->196  -->212  -->landfill 
+  route total service time: 1260.0 , route total travel time: 1544.0 
+
+  vehicle 5 route: depot -->85  -->84  -->12  -->28  -->landfill 
+  route total service time: 910.0 , route total travel time: 1824.0 
+
+  total service time for day 1 : 5035.0 , total travel time for day 1 : 8287.0 
+
+day 2 : 
+  vehicle 1 route: depot -->29  -->32  -->192  -->105  -->106  -->33  -->104  -->52  -->85  -->84  -->15  -->16  -->45  -->46  -->181  -->89  -->landfill 
+  route total service time: 939.0 , route total travel time: 2002.0 
+
+  vehicle 2 route: depot -->208  -->82  -->81  -->198  -->194  -->195  -->193  -->129  -->156  -->92  -->landfill 
+  route total service time: 995.0 , route total travel time: 1640.0 
+
+  vehicle 3 route: depot -->10  -->8  -->9  -->88  -->197  -->landfill 
+  route total service time: 707.0 , route total travel time: 1891.0 
+
+  vehicle 4 route: depot -->178  -->213  -->landfill 
+  route total service time: 1260.0 , route total travel time: 1706.0 
+
+  vehicle 5 route: depot -->165  -->164  -->210  -->landfill 
+  route total service time: 732.0 , route total travel time: 1413.0 
+
+  vehicle 6 route: depot -->87  -->28  -->86  -->landfill 
+  route total service time: 875.0 , route total travel time: 1612.0 
+
+  vehicle 7 route: depot -->31  -->196  -->212  -->landfill 
+  route total service time: 1260.0 , route total travel time: 1541.0 
+
+  vehicle 8 route: depot -->83  -->12  -->37  -->landfill 
+  route total service time: 927.0 , route total travel time: 1877.0 
+
+  total service time for day 2 : 12730.0 , total travel time for day 2 : 21969.0 
+
+day 3 : 
+  vehicle 1 route: depot -->29  -->32  -->82  -->81  -->10  -->8  -->9  -->landfill 
+  route total service time: 838.0 , route total travel time: 1872.0 
+
+  vehicle 2 route: depot -->208  -->165  -->210  -->31  -->197  -->landfill 
+  route total service time: 1330.0 , route total travel time: 1613.0 
+
+  vehicle 3 route: depot -->178  -->164  -->landfill 
+  route total service time: 697.0 , route total travel time: 1434.0 
+
+  vehicle 4 route: depot -->83  -->196  -->212  -->landfill 
+  route total service time: 1260.0 , route total travel time: 1544.0 
+
+  vehicle 5 route: depot -->85  -->84  -->12  -->28  -->landfill 
+  route total service time: 910.0 , route total travel time: 1824.0 
+
+  total service time for day 3 : 17765.0 , total travel time for day 3 : 30256.0 
+
+day 4 : 
+  vehicle 1 route: depot -->102  -->78  -->109  -->108  -->107  -->122  -->105  -->106  -->110  -->111  -->67  -->68  -->66  -->73  -->70  -->69  -->62  -->65  -->60  -->58  -->56  -->37  -->38  -->39  -->40  -->41  -->42  -->43  -->44  -->57  -->199  -->201  -->1  -->2  -->3  -->5  -->4  -->7  -->6  -->17  -->19  -->18  -->21  -->23  -->152  -->151  -->155  -->154  -->156  -->landfill 
+  route total service time: 1141.0 , route total travel time: 1831.0 
+
+  vehicle 2 route: depot -->90  -->87  -->88  -->207  -->205  -->204  -->202  -->203  -->200  -->59  -->61  -->63  -->64  -->72  -->47  -->48  -->51  -->49  -->54  -->55  -->50  -->53  -->71  -->192  -->116  -->34  -->35  -->36  -->117  -->119  -->33  -->75  -->93  -->97  -->99  -->100  -->landfill 
+  route total service time: 937.0 , route total travel time: 1940.0 
+
+  vehicle 3 route: depot -->103  -->147  -->146  -->145  -->144  -->141  -->142  -->140  -->139  -->138  -->125  -->124  -->123  -->137  -->120  -->136  -->118  -->135  -->133  -->132  -->131  -->130  -->127  -->115  -->25  -->27  -->113  -->190  -->191  -->193  -->194  -->198  -->82  -->101  -->landfill 
+  route total service time: 1244.0 , route total travel time: 1738.0 
+
+  vehicle 4 route: depot -->149  -->177  -->176  -->175  -->173  -->171  -->169  -->165  -->167  -->166  -->157  -->159  -->161  -->160  -->29  -->181  -->179  -->183  -->186  -->182  -->14  -->187  -->185  -->89  -->91  -->landfill 
+  route total service time: 1004.0 , route total travel time: 1816.0 
+
+  vehicle 5 route: depot -->208  -->81  -->197  -->195  -->126  -->26  -->24  -->22  -->20  -->92  -->209  -->211  -->landfill 
+  route total service time: 882.0 , route total travel time: 1977.0 
+
+  vehicle 6 route: depot -->12  -->11  -->13  -->15  -->16  -->45  -->46  -->188  -->184  -->189  -->180  -->landfill 
+  route total service time: 676.0 , route total travel time: 1746.0 
+
+  vehicle 7 route: depot -->77  -->79  -->74  -->114  -->76  -->94  -->96  -->landfill 
+  route total service time: 176.0 , route total travel time: 1569.0 
+
+  vehicle 8 route: depot -->170  -->163  -->162  -->172  -->210  -->30  -->178  -->83  -->150  -->153  -->206  -->landfill 
+  route total service time: 1041.0 , route total travel time: 1941.0 
+
+  vehicle 9 route: depot -->112  -->212  -->95  -->98  -->landfill 
+  route total service time: 486.0 , route total travel time: 1482.0 
+
+  vehicle 10 route: depot -->134  -->121  -->143  -->148  -->landfill 
+  route total service time: 80.0 , route total travel time: 1473.0 
+
+  vehicle 11 route: depot -->196  -->104  -->52  -->85  -->84  -->10  -->8  -->9  -->landfill 
+  route total service time: 718.0 , route total travel time: 1996.0 
+
+  vehicle 12 route: depot -->174  -->168  -->158  -->164  -->31  -->32  -->80  -->129  -->128  -->landfill 
+  route total service time: 1276.0 , route total travel time: 1638.0 
+
+  vehicle 13 route: depot -->28  -->86  -->landfill 
+  route total service time: 840.0 , route total travel time: 1612.0 
+
+  vehicle 14 route: depot -->213  -->landfill 
+  route total service time: 840.0 , route total travel time: 1412.0 
+
+  total service time for day 4 : 29106.0 , total travel time for day 4 : 54427.0 
+

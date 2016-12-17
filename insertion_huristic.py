@@ -26,16 +26,6 @@ def basic_greedy(sol, chosen_orders):
     while len(chosen_orders)>0:
         minimal_cost_for_order = numpy.inf
 
-        # calculates objective for each order and finds best order to insert
-##        for day in range(len(sol)):
-##            flag = False
-##            for vehicle in sol[day]:
-##                if len(vehicle)==2:
-##                    flag = True
-##                    break
-##            if flag == False:
-##                sol[day].append([Stop(0, 0, 0), Stop(g.N2, 0, 0)])
-
         for i in chosen_orders:
 
             order_data = minimum_insertion_cost(i, sol)
@@ -48,10 +38,24 @@ def basic_greedy(sol, chosen_orders):
         sol = insert_order(sol, chosen_data, chosen_order)
         chosen_orders.remove(chosen_order)
 
-        # remove empty vehicles from solution
-##        for i in range(len(sol)):
-##            if len(sol[i][-1]) == 2:
-##                sol[i] = sol[i][:-1]
+    return sol
+
+
+def regret_huristic(sol, chosen_orders):
+    while len(chosen_orders)>0:
+        max_diff_for_order = 0
+
+        for i in chosen_orders:
+            order_data = minimum_regret_cost(i, sol)
+            if order_data[0] >= max_diff_for_order:
+                chosen_order = i
+                max_diff_for_order = order_data[0]
+                chosen_data = order_data
+
+        #insert the chosen order
+        sol = insert_order(sol, chosen_data, chosen_order)
+        chosen_orders.remove(chosen_order)
+
     return sol
 
 # insert order func gets a solution, order data and order number, and inserts the order to the solution
@@ -89,9 +93,9 @@ def insert_order(sol, order_data, i):
 # minimum insertion cost func gets order number and solution, and returns min objective value and best place to insert the order
 # the func returns min_sched for order i
 # min_sched: [objective value, [(day in schedule, vehicle, slot in route)]
+
 def minimum_insertion_cost(i, sol):
     # run over all possible schedules
-    global dist_added
     possible_schedule = g.Pr[g.r[i]]
     min_sched_cost = numpy.inf
     for sched in possible_schedule:
@@ -102,16 +106,8 @@ def minimum_insertion_cost(i, sol):
 
         for day in sched:
             # initialize the cost per vehicle for each day in a specific schedule
-##            flag = False
-##            for vehicle in sol[day - 1]:
-##                if len(vehicle)==2:
-##                    flag = True
-##                    break
-##            if flag == False:
-##                sol[day - 1].append([Stop(0, 0, 0), Stop(g.N2, 0, 0)])
 
             minimal_vehicle_cost = numpy.inf
-
             for vehicle in sol[day - 1]:
                 # save vehicle index
                 vehicle_number = sol[day - 1].index(vehicle)
@@ -153,8 +149,75 @@ def minimum_insertion_cost(i, sol):
 
         # saves only best schedule
         if all_days_costs < min_sched_cost:
+            min_sched_cost = all_days_costs
             min_sched = (all_days_costs, routes_for_days)
 
+
+    return min_sched
+
+
+def minimum_regret_cost(i, sol):
+    # run over all possible schedules
+    possible_schedule = g.Pr[g.r[i]]
+    max_diff = 0
+    for sched in possible_schedule:
+        # initialize the cost per day for each schedules
+        all_days_costs = [0,0]
+        # run over all days in sched
+        routes_for_days = []
+
+        for day in sched:
+            # initialize the cost per vehicle for each day in a specific schedule
+            # location 0 is the second best vehicle and location 1 is the best vehicle
+            minimal_vehicle_cost = [numpy.inf, numpy.inf]
+            for vehicle in sol[day - 1]:
+                # save vehicle index
+                vehicle_number = sol[day - 1].index(vehicle)
+                # check if capacity constraint is broken
+                if vehicle[-2].load + g.w[i] > g.C:
+                    continue
+
+                # run over all orders per vehicle to find best insertion slot
+                for j in range(0,len(vehicle)-1):
+                    # if we are at the middle of the route
+                    if vehicle[j+1].order_number != g.N2:
+                        dist_added = g.d[vehicle[j].order_number, i] + g.d[i, vehicle[j+1].order_number]\
+                                     - g.d[vehicle[j].order_number, vehicle[j+1].order_number]
+
+                        time_added = g.s[i] + g.t[vehicle[j].order_number, i] + g.t[i, vehicle[j + 1].order_number] \
+                                     - g.t[vehicle[j].order_number, vehicle[j + 1].order_number]
+
+                    # if we are at the landfill
+                    else:
+                        dist_added = g.d[vehicle[j].order_number, i] + g.d[i, 0] - g.d[vehicle[j].order_number, 0]
+                        time_added = g.s[i] + g.t[vehicle[j].order_number, i] + g.t[i, 0] - g.t[vehicle[j].order_number, 0]
+
+                    # check if shift length constraint is broken
+                    if vehicle[-1].arrival_time + time_added > g.shift_length:
+                        continue
+
+                    # calculates delta of objective for this slot
+                    delta_route_cost = time_added * time_weight + dist_added * dist_weight
+
+                    # saves only best insertion slot
+                    if delta_route_cost <= minimal_vehicle_cost[1]:
+                        minimal_location = j
+                        minimal_vehicle_cost[0] = minimal_vehicle_cost[1]
+                        minimal_vehicle_cost[1] = delta_route_cost
+                        minimal_vehicle = vehicle_number
+
+                    if (delta_route_cost < minimal_vehicle_cost[0]) and (delta_route_cost > minimal_vehicle_cost[1]):
+                        minimal_vehicle_cost[0] = delta_route_cost
+
+            # calculates cost for all days in schedule
+            routes_for_days.append((day, minimal_vehicle, minimal_location))
+            all_days_costs[0] += minimal_vehicle_cost[0]
+            all_days_costs[1] += minimal_vehicle_cost[1]
+
+        # saves only best schedule
+        if (all_days_costs[0]-all_days_costs[1]) >= max_diff:
+            max_diff = all_days_costs[0]-all_days_costs[1]
+            min_sched = (max_diff, routes_for_days)
 
     return min_sched
 
