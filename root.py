@@ -4,60 +4,55 @@ import get_data as g
 import copy
 import datetime
 import time
-import os
 
 random.seed(0)
 # sol - a solution to destract
 # q - number of orders to remove from the solution
 # k - a number in R+, degree of randomness, less randomness when k is larger k
 k = 10
-q = 10
+q = 20
 n = 1000  # number of iterations
+time_weight = 1
+dist_weight = 0
 
 
-# find_best_sol func runs removal_huristic and basic_greedy n times to find best solution
+# find_best_sol func runs removal_heuristic and basic_greedy n times to find best solution
 def find_best_sol(q, k, n):
     all_orders = list(g.N1)
     # creates empty solution
-    empty_sol = [[[Stop(0, 0, 0), Stop(g.N2, 0, 0)]] for k in range(int(g.T))]
+    initial_sol = [[[Stop(0, 0, 0), Stop(g.N2, 0, 0)]] for k in range(int(g.T))]
     # insert all orders to create an initial solution
-    sol = find_initial_sol(all_orders, empty_sol)
+    find_initial_sol(all_orders, initial_sol)
     #checks if the solution is valid
-    test_sol(sol)
-    best_sol =[sol, calc_target_objective(sol)]
-    temp_sol = copy.deepcopy(sol)
-    result = {"target function":[best_sol[1]]}
+    test_sol(initial_sol)
+    initial_cost = calc_target_objective(initial_sol)
+    best_sol =[initial_sol, initial_cost]
+    temp_sol = copy.deepcopy(initial_sol)
     for i in range(n):
-        # removed_sol, chosen_orders = worst_removel(temp_sol, q, k)
-        removed_sol, chosen_orders = shaw_removal_huristic(temp_sol, q, k)
-        # temp_sol = regret_huristic(removed_sol, chosen_orders)
-        temp_sol = basic_greedy(removed_sol, chosen_orders)
+        # chosen_orders = worst_removal_heuristic(temp_sol, q, k)
+        chosen_orders = shaw_removal_heuristic(temp_sol, q, k)
+        regret_heuristic_insertion(temp_sol, chosen_orders)
+        # basic_greedy_insertion(temp_sol, chosen_orders)
         test_sol(temp_sol)
         objective = calc_target_objective(temp_sol)
         # saves best solution if one was found
         # print objective
         if objective < best_sol[1]:
-            best_sol[0] = temp_sol
+            best_sol[0] = copy.deepcopy(temp_sol)
             best_sol[1] = objective
-            print i,best_sol[1]
-        result["target function"].append(objective)
-##    # deletes empty vehicles
-##    for day in range(len(sol)):
-##        for vehicle in range(len(sol[day]) - 1, -1, -1):
-##            if len(sol[day][vehicle]) == 2:
-##                sol[day].pop(vehicle)
+            print i,best_sol[1], best_sol[0]
 
-    return result, best_sol
+    return best_sol
+
 
 def find_initial_sol(orders, sol):
     orders_copy = copy.deepcopy(orders)
     while len(orders_copy)>0:
         for i in orders_copy:
             order_data = minimum_insertion_cost(i, sol)
-            sol = insert_order(sol, order_data, i)
+            insert_order(sol, order_data, i)
             orders_copy.remove(i)
     # print "init", sol
-    return sol
 
 
 def test_sol(sol):
@@ -93,30 +88,30 @@ def display_sol(sol):
     date = time.strftime("%d-%m-%Y")
     hour = time.strftime("%I_%M_%S")
 
-    total_service_time = 0
-    total_travel_time = 0
     with open('./results/{}_{}_{}.txt'.format(instance[:-5], date, hour), 'w+') as txt_file:
         txt_file.write("total objective: {}  \n\n".format(calc_target_objective(sol)))
         txt_file.write("parameters: k={}, q={}, n={}  \n\n".format(k, q, n))
         for day_num in range(len(sol)):
-                txt_file.write("day {} : \n".format(day_num+1))
+            txt_file.write("day {} : \n".format(day_num+1))
 
-                #delete empty vehicles
-                for vehicle in range(len(sol[day_num])-1, -1, -1):
-                    if len(sol[day_num][vehicle]) == 2:
-                        sol[day_num].pop(vehicle)
+            #delete empty vehicles
+            for vehicle in range(len(sol[day_num])-1, -1, -1):
+                if len(sol[day_num][vehicle]) == 2:
+                    sol[day_num].pop(vehicle)
 
-                for vehicle_num in range(len(sol[day_num])):
-                    vehicle_service_time = 0
-                    txt_file.write("  vehicle {} route: depot -->".format(vehicle_num+1))
-                    for order in sol[day_num][vehicle_num][1:-1]:
-                        vehicle_service_time += s[order.order_number]
-                        txt_file.write("{}  -->".format(order.order_number))
-                    txt_file.write("landfill \n")
-                    txt_file.write("  route total service time: {} , route total travel time: {} \n\n".format(vehicle_service_time, sol[day_num][vehicle_num][-1].arrival_time - vehicle_service_time))
-                    total_service_time += vehicle_service_time
-                    total_travel_time += (sol[day_num][vehicle_num][-1].arrival_time - vehicle_service_time)
-                txt_file.write("  total service time for day {} : {} , total travel time for day {} : {} \n\n".format(day_num+1, total_service_time, day_num+1, total_travel_time ))
+            total_service_time = 0
+            total_travel_time = 0
+            for vehicle_num in range(len(sol[day_num])):
+                vehicle_service_time = 0
+                txt_file.write("  vehicle {} route: depot -->".format(vehicle_num+1))
+                for order in sol[day_num][vehicle_num][1:-1]:
+                    vehicle_service_time += s[order.order_number]
+                    txt_file.write("{} -->".format(order.order_number, order.arrival_time))
+                txt_file.write("landfill \n")
+                txt_file.write("  route total service time: {} , route total travel time: {} \n\n".format(vehicle_service_time, sol[day_num][vehicle_num][-1].arrival_time - vehicle_service_time))
+                total_service_time += vehicle_service_time
+                total_travel_time += (sol[day_num][vehicle_num][-1].arrival_time - vehicle_service_time)
+            txt_file.write("  total service time for day {} : {} , total travel time for day {} : {} \n\n".format(day_num+1, total_service_time, day_num+1, total_travel_time ))
 
 
 def calc_target_objective(sol):
@@ -128,9 +123,8 @@ def calc_target_objective(sol):
             total_time += vehicle[-1].arrival_time
             for order in range(len(vehicle)-1):
                 total_dist+= g.d[vehicle[order].order_number, vehicle[order+1].order_number]
-    return 0.2 * total_time + 0.3 * total_dist
+    return time_weight * total_time + dist_weight * total_dist
 
 best_solution = find_best_sol(q, k, n)
-display_sol(best_solution[1][0])
-#print best_solution[0]
+display_sol(best_solution[0])
 
