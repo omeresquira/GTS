@@ -121,6 +121,8 @@ class Stop(object):
 
     def __repr__(self):
         return str(self.order_number)
+    def __hash__(self):
+        hash((self.order_number, self.arrival_time, self.load))
 
 
 

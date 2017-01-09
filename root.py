@@ -1,48 +1,130 @@
+from __future__ import division
 from insertion_huristic import *
 from removal_huristic import *
 import get_data as g
 import copy
 import datetime
+import numpy as np
 import time
 
 random.seed(0)
 # sol - a solution to destract
 # q - number of orders to remove from the solution
 # k - a number in R+, degree of randomness, less randomness when k is larger k
+#######################
+########parameters#####
+#######################
 k = 10
 q = 20
 n = 1000  # number of iterations
 time_weight = 1
 dist_weight = 0
+# insertion_weights[0] is the prop of choosing basic_greedy_insertion, insertion_weights[1] is the prop of choosing regret_heuristic_insertion
+insertion_weights = [1, 1]
+# removal_weights[0] is the prop of choosing shaw_removal_heuristic, removal_weights[1] is the prop of choosing worst_removal_heuristic
+removal_weights = [1, 1]
+# cost updates
+sigma_1 = 3
+sigma_2 = 2
+sigma_3 = 1
+r = 0.5
+
+segment_size = 100
+
+
+
+def change_weights(worst_removal_heuristic_counter, basic_greedy_insertion_counter,shaw_removal_heuristic_counter, regret_heuristic_insertion_counter, pai_insertion, pai_removal ):
+    insertion_weights[0] = insertion_weights[0]*(1-r) +r*pai_insertion[0]/basic_greedy_insertion_counter
+    insertion_weights[1] = insertion_weights[1]*(1-r) +r*pai_insertion[1]/regret_heuristic_insertion_counter
+    removal_weights[0] = removal_weights[0]*(1-r) +r*pai_removal[0]/shaw_removal_heuristic_counter
+    removal_weights[1] = removal_weights[1]*(1-r) +r*pai_removal[1]/worst_removal_heuristic_counter
+
+
 
 
 # find_best_sol func runs removal_heuristic and basic_greedy n times to find best solution
 def find_best_sol(q, k, n):
+    #initialize objective to inf
+    objective = np.inf
+    # hash table with all visited solutions
+    hash_sol = []
+    worst_removal_heuristic_counter = 0
+    shaw_removal_heuristic_counter = 0
+    regret_heuristic_insertion_counter =0
+    basic_greedy_insertion_counter =0
+
+    # a list of huristic scores, initialize to zero
+    pai_insertion = [0,0]
+    pai_removal = [0,0]
+
     all_orders = list(g.N1)
+
     # creates empty solution
     initial_sol = [[[Stop(0, 0, 0), Stop(g.N2, 0, 0)]] for k in range(int(g.T))]
+
     # insert all orders to create an initial solution
     find_initial_sol(all_orders, initial_sol)
+
     #checks if the solution is valid
     test_sol(initial_sol)
     initial_cost = calc_target_objective(initial_sol)
     best_sol =[initial_sol, initial_cost]
     temp_sol = copy.deepcopy(initial_sol)
     for i in range(n):
-        # chosen_orders = worst_removal_heuristic(temp_sol, q, k)
-        chosen_orders = shaw_removal_heuristic(temp_sol, q, k)
-        regret_heuristic_insertion(temp_sol, chosen_orders)
-        # basic_greedy_insertion(temp_sol, chosen_orders)
+
+        #choose removal insertion
+        p = random.uniform(0, 1)
+        if p>(removal_weights[0])/sum(removal_weights):
+            chosen_orders = worst_removal_heuristic(temp_sol, q, k)
+            removal_huristic = 1
+            worst_removal_heuristic_counter+=1
+        else:
+            chosen_orders = shaw_removal_heuristic(temp_sol, q, k)
+            removal_huristic = 0
+            shaw_removal_heuristic_counter +=1
+
+        #choose removal insertion
+        p = random.uniform(0, 1)
+        if p>(insertion_weights[0])/sum(insertion_weights):
+            regret_heuristic_insertion(temp_sol, chosen_orders)
+            insertion_huristic = 1
+            regret_heuristic_insertion_counter+=1
+
+        else:
+            basic_greedy_insertion(temp_sol, chosen_orders)
+            insertion_huristic = 0
+            basic_greedy_insertion_counter+=1
+
         test_sol(temp_sol)
-        objective = calc_target_objective(temp_sol)
-        # saves best solution if one was found
-        # print objective
-        if objective < best_sol[1]:
+        new_objective = calc_target_objective(temp_sol)
+
+        if new_objective<objective and best_sol[1] < new_objective:
+            pai_insertion[insertion_huristic]+=sigma_2
+            pai_removal[removal_huristic] += sigma_2
+
+        elif new_objective < best_sol[1]:
+            objective = new_objective
             best_sol[0] = copy.deepcopy(temp_sol)
             best_sol[1] = objective
-            print i,best_sol[1], best_sol[0]
+            pai_insertion[insertion_huristic] += sigma_1
+            pai_removal[removal_huristic] += sigma_1
+            # print i, best_sol[1], best_sol[0]
+
+        #check if we visited this sol before
+        elif hash(objective) in hash_sol:
+            pai_insertion[insertion_huristic]+=sigma_3
+            pai_removal[removal_huristic] += sigma_3
+
+        if i%segment_size == 0 and i != 0:
+            change_weights(worst_removal_heuristic_counter, basic_greedy_insertion_counter,shaw_removal_heuristic_counter, regret_heuristic_insertion_counter, pai_insertion, pai_removal )
+            worst_removal_heuristic_counter = 0
+            shaw_removal_heuristic_counter = 0
+            regret_heuristic_insertion_counter = 0
+            basic_greedy_insertion_counter = 0
 
     return best_sol
+
+
 
 
 def find_initial_sol(orders, sol):
