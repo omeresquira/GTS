@@ -56,8 +56,6 @@ def find_best_sol(q, k, n):
     # a list of huristic scores, initialize to zero
     pai_insertion = [0,0]
     pai_removal = [0,0]
-    # update hash_sol - we did not implement
-    # hash_sol.append(hash(objective))
     all_orders = list(g.N1)
 
     # creates empty solution
@@ -99,6 +97,7 @@ def find_best_sol(q, k, n):
 
         test_sol(temp_sol)
         new_objective = calc_target_objective(temp_sol)
+        hash_sol.append(hash(new_objective))
 
         if new_objective<objective and best_sol[1] < new_objective:
             pai_insertion[insertion_huristic]+=sigma_2
