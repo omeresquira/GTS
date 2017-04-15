@@ -148,7 +148,6 @@ def minimum_insertion_cost(i, sol):
             min_sched_cost = all_days_costs
             min_sched = (all_days_costs, routes_for_days)
 
-
     return min_sched
 
 

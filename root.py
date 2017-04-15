@@ -56,7 +56,8 @@ def find_best_sol(q, k, n):
     # a list of huristic scores, initialize to zero
     pai_insertion = [0,0]
     pai_removal = [0,0]
-
+    # update hash_sol - we did not implement
+    # hash_sol.append(hash(objective))
     all_orders = list(g.N1)
 
     # creates empty solution
@@ -68,6 +69,7 @@ def find_best_sol(q, k, n):
     #checks if the solution is valid
     test_sol(initial_sol)
     initial_cost = calc_target_objective(initial_sol)
+
     best_sol =[initial_sol, initial_cost]
     temp_sol = copy.deepcopy(initial_sol)
     for i in range(n):
@@ -108,7 +110,7 @@ def find_best_sol(q, k, n):
             best_sol[1] = objective
             pai_insertion[insertion_huristic] += sigma_1
             pai_removal[removal_huristic] += sigma_1
-            # print i, best_sol[1], best_sol[0]
+            print i, best_sol[1]
 
         #check if we visited this sol before
         elif hash(objective) in hash_sol:
