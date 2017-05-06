@@ -1,7 +1,7 @@
 import xlrd
 import numpy as np
 
-instanceFileName = 'Test_Instance.xlsx'
+np.set_printoptions(threshold='nan')
 xl_data = xlrd.open_workbook(instanceFileName)
 orders_sheet = xl_data.sheet_by_name('Orders')
 Vehicle_sheet = xl_data.sheet_by_name('Vehicle')
@@ -123,9 +123,6 @@ class Stop(object):
         return str(self.order_number)
     def __hash__(self):
         hash((self.order_number, self.arrival_time, self.load))
-
-
-
 
 
 create_orders_dict()

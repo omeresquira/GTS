@@ -15,7 +15,7 @@ random.seed(0)
 ########parameters#####
 #######################
 k = 10
-q = 20
+q = 3
 n = 1000  # number of iterations
 time_weight = 1
 dist_weight = 0

@@ -1,0 +1,15 @@
+// solution (optimal) with objective 1544
+Routes of day 1
+0 -> 4 -> 3 -> 2 -> 1 -> 5 -> 0
+
+Routes of day 2
+
+Routes of day 3
+
+Routes of day 4
+
+ [[0 0 0 1 0 0 0]
+         [0 0 0 1 0 0 0]
+         [0 0 0 1 0 0 0]
+         [0 0 0 1 0 0 0]
+         [0 0 0 1 0 0 0]]
