@@ -1,0 +1,41 @@
+total objective: 10221.0  
+
+parameters: k=10, q=3, n=1000  
+
+day 1 : 
+  vehicle 1 route: depot -->20 -->18 -->19 -->17 -->6 -->7 -->4 -->5 -->3 -->2 -->1 -->14 -->16 -->15 -->13 -->12 -->11 -->10 -->8 -->9 -->landfill 
+  route total service time: 941.0 , route total travel time: 1027.0 
+
+  total service time for day 1 : 941.0 , total travel time for day 1 : 1027.0 
+
+day 2 : 
+  vehicle 1 route: depot -->20 -->4 -->5 -->3 -->2 -->1 -->13 -->12 -->9 -->landfill 
+  route total service time: 601.0 , route total travel time: 967.0 
+
+  total service time for day 2 : 601.0 , total travel time for day 2 : 967.0 
+
+day 3 : 
+  vehicle 1 route: depot -->20 -->19 -->4 -->5 -->3 -->2 -->1 -->14 -->13 -->12 -->11 -->9 -->landfill 
+  route total service time: 668.0 , route total travel time: 1027.0 
+
+  total service time for day 3 : 668.0 , total travel time for day 3 : 1027.0 
+
+day 4 : 
+  vehicle 1 route: depot -->20 -->18 -->4 -->5 -->3 -->2 -->1 -->16 -->13 -->12 -->10 -->9 -->landfill 
+  route total service time: 760.0 , route total travel time: 967.0 
+
+  total service time for day 4 : 760.0 , total travel time for day 4 : 967.0 
+
+day 5 : 
+  vehicle 1 route: depot -->20 -->19 -->4 -->5 -->3 -->2 -->1 -->14 -->13 -->12 -->11 -->9 -->landfill 
+  route total service time: 668.0 , route total travel time: 1027.0 
+
+  total service time for day 5 : 668.0 , total travel time for day 5 : 1027.0 
+
+day 6 : 
+  vehicle 1 route: depot -->20 -->4 -->5 -->3 -->2 -->1 -->13 -->12 -->9 -->landfill 
+  route total service time: 601.0 , route total travel time: 967.0 
+
+  total service time for day 6 : 601.0 , total travel time for day 6 : 967.0 
+
+Progression:

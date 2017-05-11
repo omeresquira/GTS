@@ -1,6 +1,6 @@
 import random
 import copy
-import get_data as g
+from get_data import *
 
 # a solution is a list builed of sub-lists
 
@@ -24,8 +24,9 @@ service_time_weight = 0.4
 time_weight = 1
 dist_weight = 0
 
+
 # function that checks similarity of two orders based on service time and rhythm
-def calc_target_objective(sol):
+def calc_target_objective(sol, g):
     total_time = 0
     total_dist = 0
     for day in range(len(sol)):
@@ -33,15 +34,15 @@ def calc_target_objective(sol):
         for vehicle in sol[day]:
             total_time += vehicle[-1].arrival_time
             for order in range(len(vehicle)-1):
-                total_dist+= g.d[vehicle[order].order_number, vehicle[order+1].order_number]
+                total_dist += g.d[vehicle[order].order_number, vehicle[order+1].order_number]
     return 0.2 * total_time + 0.3 * total_dist
 
 
-def similarity_func(i, j):
+def similarity_func(i, j, g):
     return rythem_weight * abs(g.r[i] - g.r[j]) + service_time_weight * abs(g.s[i] - g.s[j])
 
 
-def shaw_removal_heuristic(sol, q, k):
+def shaw_removal_heuristic(sol, q, k, g):
 
     # sol - a solution to destract
     # q - number of orders to remove from the solution
@@ -55,11 +56,11 @@ def shaw_removal_heuristic(sol, q, k):
     chosen_orders = [chosen_order]
     unchosen_orders.remove(chosen_order)
 
-    while len(chosen_orders) < q :
+    while len(chosen_orders) < q:
         # for a chosen order calculate the similarity with all unchosen orders
         similarity_list = []
         for order in unchosen_orders:
-            similarity_list.append((similarity_func(order,chosen_order),order))
+            similarity_list.append((similarity_func(order, chosen_order, g), order))
         # sort the similarity list from small to large
         similarity_list = sorted(similarity_list)
         p = random.uniform(0, 1)
@@ -69,14 +70,14 @@ def shaw_removal_heuristic(sol, q, k):
         chosen_orders.append(chosen_order)
         unchosen_orders.remove(chosen_order)
 
-    return remove_orders(sol, chosen_orders)
+    return remove_orders(sol, chosen_orders, g)
 
 
-def worst_removal_heuristic(sol, q, k):
+def worst_removal_heuristic(sol, q, k, g):
     # copy a list of all orders
     unchosen_orders = copy.deepcopy(g.N1)
     chosen_orders = []
-    initial_objective = calc_target_objective(sol)
+    initial_objective = calc_target_objective(sol, g)
 
     while len(chosen_orders) < q:
         # list of all orders and cost
@@ -86,7 +87,7 @@ def worst_removal_heuristic(sol, q, k):
 
         # calc each order cost
         for order in unchosen_orders:
-            cost = calc_worst_cost(sol, order)
+            cost = calc_worst_cost(sol, order, g)
             orders_cost_list.append((cost, order))
 
         # sort cost list
@@ -96,13 +97,13 @@ def worst_removal_heuristic(sol, q, k):
         remove_index = int(len(orders_cost_list) * p ** k)
         chosen_order = orders_cost_list[remove_index][1]
         chosen_orders.append(chosen_order)
-        remove_orders(sol, [chosen_order])
+        remove_orders(sol, [chosen_order], g)
         unchosen_orders.remove(chosen_order)
 
     return chosen_orders
 
 
-def calc_worst_cost(sol, order):
+def calc_worst_cost(sol, order, g):
     cost = 0
     for day in range(len(sol)):
         for vehicle in range(len(sol[day])):
@@ -116,14 +117,14 @@ def calc_worst_cost(sol, order):
     return cost
 
 
-def remove_orders(sol, chosen_orders):
+def remove_orders(sol, chosen_orders, g):
     # remove the chosen orders from sol
     for day in range(len(sol)):
         vehicle_to_remove = []
         for vehicle in range(len(sol[day])):
 
             removed = False
-            for i in range(len(sol[day][vehicle])-1,-1,-1):
+            for i in range(len(sol[day][vehicle]) - 1, -1, -1):
                 if sol[day][vehicle][i].order_number in chosen_orders:
                     sol[day][vehicle].remove(sol[day][vehicle][i])
                     if len(sol[day][vehicle]) == 2:
@@ -142,7 +143,7 @@ def remove_orders(sol, chosen_orders):
                         new_F = 0
                         new_S = sol[day][vehicle][i - 1].arrival_time + g.t[sol[day][vehicle][i - 1].order_number, 0] + \
                                 g.s[sol[day][vehicle][i - 1].order_number]
-                    sol[day][vehicle][i] = g.Stop(order_num, new_S , new_F)
+                    sol[day][vehicle][i] = Stop(order_num, new_S , new_F)
 
         if len(vehicle_to_remove) > 0:
             for v in range(len(sol[day])-1,-1,-1):

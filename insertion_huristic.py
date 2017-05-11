@@ -1,5 +1,4 @@
 import numpy
-import get_data as g
 from get_data import *
 
 # weights for objective function: time_added * time_weight + dist_added * dist_weight
@@ -22,42 +21,42 @@ dist_weight = 0
 
 # basic greedy func gets a destracted solution and a list of orders, picks their insertion order and returns a full solution
 
-def basic_greedy_insertion(sol, chosen_orders):
+def basic_greedy_insertion(sol, chosen_orders, g):
     while len(chosen_orders)>0:
         minimal_cost_for_order = numpy.inf
 
         for i in chosen_orders:
 
-            order_data = minimum_insertion_cost(i, sol)
+            order_data = minimum_insertion_cost(i, sol, g)
             if order_data[0] < minimal_cost_for_order:
                 chosen_order = i
                 minimal_cost_for_order = order_data[0]
                 chosen_data = order_data
 
         #insert the chosen order
-        insert_order(sol, chosen_data, chosen_order)
+        insert_order(sol, chosen_data, chosen_order, g)
         chosen_orders.remove(chosen_order)
 
 
-def regret_heuristic_insertion(sol, chosen_orders):
+def regret_heuristic_insertion(sol, chosen_orders, g):
     while len(chosen_orders)>0:
 
         max_diff_for_order = 0
         for i in chosen_orders:
-            order_data = minimum_regret_cost(i, sol)
+            order_data = minimum_regret_cost(i, sol, g)
             if order_data[0] >= max_diff_for_order:
                 chosen_order = i
                 max_diff_for_order = order_data[0]
                 chosen_data = order_data
 
         #insert the chosen order
-        insert_order(sol, chosen_data, chosen_order)
+        insert_order(sol, chosen_data, chosen_order, g)
         chosen_orders.remove(chosen_order)
 
 
 # insert order func gets a solution, order data and order number, and inserts the order to the solution
 # order data: [objective value, [(day in schedule, vehicle, slot in route)]
-def insert_order(sol, order_data, i):
+def insert_order(sol, order_data, i, g):
     # extract insert values
     for data in order_data[1]:
         vehicle = data[1]
@@ -90,7 +89,7 @@ def insert_order(sol, order_data, i):
 # the func returns min_sched for order i
 # min_sched: [objective value, [(day in schedule, vehicle, slot in route)]
 
-def minimum_insertion_cost(i, sol):
+def minimum_insertion_cost(i, sol, g):
     # run over all possible schedules
     possible_schedule = g.Pr[g.r[i]]
     min_sched_cost = numpy.inf
@@ -151,7 +150,7 @@ def minimum_insertion_cost(i, sol):
     return min_sched
 
 
-def minimum_regret_cost(i, sol):
+def minimum_regret_cost(i, sol, g):
     # run over all possible schedules
     possible_schedule = g.Pr[g.r[i]]
     sched_cost = [numpy.inf,numpy.inf]

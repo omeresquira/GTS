@@ -1,0 +1,28 @@
+total objective: 6431.0  
+
+parameters: k=10, q=3, n=1000  
+
+day 1 : 
+  vehicle 1 route: depot -->20 -->18 -->19 -->17 -->6 -->7 -->4 -->5 -->3 -->2 -->1 -->14 -->16 -->15 -->13 -->12 -->11 -->10 -->8 -->9 -->landfill 
+  route total service time: 941.0 , route total travel time: 1027.0 
+
+  total service time for day 1 : 941.0 , total travel time for day 1 : 1027.0 
+
+day 2 : 
+  vehicle 1 route: depot -->12 -->10 -->8 -->9 -->landfill 
+  route total service time: 586.0 , route total travel time: 864.0 
+
+  total service time for day 2 : 586.0 , total travel time for day 2 : 864.0 
+
+day 3 : 
+  vehicle 1 route: depot -->10 -->8 -->9 -->12 -->15 -->16 -->landfill 
+  route total service time: 648.0 , route total travel time: 915.0 
+
+  total service time for day 3 : 648.0 , total travel time for day 3 : 915.0 
+
+day 4 : 
+  vehicle 1 route: depot -->12 -->10 -->8 -->9 -->landfill 
+  route total service time: 586.0 , route total travel time: 864.0 
+
+  total service time for day 4 : 586.0 , total travel time for day 4 : 864.0 
+
